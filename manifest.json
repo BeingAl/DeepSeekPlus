@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "DeepSeek Plus (DSP)",
+  "version": "1.23.0",
+  "description": "Supercharges chat.deepseek.com: RTL/LTR direction, auto system prompts, page fonts, a wider chat column and project folders",
+  "permissions": ["storage"],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "DeepSeek Plus (DSP)",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.deepseek.com/*"],
+      "js": ["fonts.js", "content.js", "projects.js"],
+      "css": ["styles.css", "theme-ayu.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

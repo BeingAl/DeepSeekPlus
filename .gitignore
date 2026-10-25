@@ -1,0 +1,25 @@
+# Build artifacts
+dist/
+*.crx
+
+# Signing keys
+*.pem
+
+# Local tool state (at any depth)
+**/.mimosa/
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+.directory
+*~
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log

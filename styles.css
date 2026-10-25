@@ -1,0 +1,50 @@
+/*
+ * DeepSeek Plus (DSP): automatic text direction rules.
+ *
+ * unicode-bidi: plaintext derives the direction of each paragraph from its
+ * first strong character, which is exactly what a mixed Persian/English chat
+ * needs. No JavaScript scanning is required.
+ */
+
+/* Chat text: automatic direction based on first strong character */
+p,
+li,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+blockquote,
+td,
+th,
+dd,
+dt,
+figcaption,
+div[class*="message"] {
+  unicode-bidi: plaintext !important;
+  text-align: start !important;
+}
+
+/* Text inputs and editors: direction follows the first strong character */
+textarea,
+input,
+[contenteditable="true"] {
+  unicode-bidi: plaintext !important;
+}
+
+/* Code blocks: always LTR */
+pre,
+pre code {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: embed !important;
+}
+
+/* Inline code: LTR isolated from surrounding text */
+code:not(pre code),
+kbd,
+samp {
+  direction: ltr !important;
+  unicode-bidi: isolate !important;
+}

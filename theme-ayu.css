@@ -1,0 +1,202 @@
+/*
+ * DeepSeek Plus (DSP): Ayu Mirage code theme for chat snippets.
+ *
+ * Palette from the MIT-licensed Ayu Mirage color scheme, mapped onto
+ * DeepSeek's Prism-style .token classes inside .md-code-block
+ * wrappers; every rule below overrides both the site's dark and light
+ * block variants.
+ */
+
+/* Block surfaces: body, header banner and footer */
+.md-code-block,
+.md-code-block pre {
+  background-color: #242835 !important;
+}
+
+.md-code-block-banner,
+.md-code-block-banner-wrap,
+.md-code-block-banner-lite,
+.md-code-block-footer {
+  background-color: #1a1f2b !important;
+  color: #8a9199 !important;
+  border-color: #313540 !important;
+}
+
+.md-code-block,
+.md-code-block pre,
+.md-code-block code {
+  color: #cccac2 !important;
+}
+
+.md-code-block ::selection {
+  background: rgba(64, 159, 255, 0.25);
+}
+
+/* --- Token mapping (Prism scopes -> Ayu Mirage) --- */
+
+/* Comments: faded blue, italic */
+.md-code-block .token.comment,
+.md-code-block .token.prolog,
+.md-code-block .token.doctype,
+.md-code-block .token.cdata {
+  color: #b8cfe680 !important;
+  font-style: italic !important;
+}
+
+/* Punctuation: foreground at 70% */
+.md-code-block .token.punctuation {
+  color: #cccac2b3 !important;
+}
+
+/* Tags: cyan */
+.md-code-block .token.tag,
+.md-code-block .token.tag .token.punctuation,
+.md-code-block .token.selector .token.parent,
+.md-code-block .token.delimiter.important {
+  color: #5ccfe6 !important;
+}
+
+/* Numbers, booleans, constants, attribute names: lilac */
+.md-code-block .token.number,
+.md-code-block .token.boolean,
+.md-code-block .token.boolean.important,
+.md-code-block .token.constant,
+.md-code-block .token.attr-name,
+.md-code-block .token.selector .token.attribute {
+  color: #dfbfff !important;
+}
+
+/* Classes, types, entities: blue */
+.md-code-block .token.class-name {
+  color: #73d0ff !important;
+}
+
+/* Parameters and keys: lilac */
+.md-code-block .token.parameter,
+.md-code-block .token.key {
+  color: #dfbfff !important;
+}
+
+/* Properties, members, plain variables: foreground */
+.md-code-block .token.property,
+.md-code-block .token.property-access,
+.md-code-block .token.variable {
+  color: #cccac2 !important;
+}
+
+/* this/self: cyan italic */
+.md-code-block .token.keyword-this,
+.md-code-block .token.this {
+  color: #5ccfe6 !important;
+  font-style: italic !important;
+}
+
+/* Strings, attribute values, colors: green */
+.md-code-block .token.string,
+.md-code-block .token.attr-value,
+.md-code-block .token.color,
+.md-code-block .token.string .token.url-link,
+.md-code-block .token.selector .token.value {
+  color: #d5ff80 !important;
+}
+
+/* Regexes and character constants: teal */
+.md-code-block .token.regex {
+  color: #95e6cb !important;
+}
+
+/* Functions and calls: yellow */
+.md-code-block .token.function,
+.md-code-block .token.selector .token.class,
+.md-code-block .token.selector .token.id {
+  color: #ffd173 !important;
+}
+
+/* Builtins/macros: salmon; packages: green */
+.md-code-block .token.builtin {
+  color: #f28779 !important;
+}
+
+.md-code-block .token.package,
+.md-code-block .token.keyword-array {
+  color: #d5ff80 !important;
+}
+
+/* Keywords and storage: orange */
+.md-code-block .token.keyword,
+.md-code-block .token.atrule .token.rule,
+.md-code-block .token.combinator,
+.md-code-block .token.pseudo-class,
+.md-code-block .token.pseudo-element,
+.md-code-block .token.selector,
+.md-code-block .token.unit {
+  color: #ffad66 !important;
+}
+
+/* Operators: darker orange */
+.md-code-block .token.operator {
+  color: #f29e74 !important;
+}
+
+/* Diff states */
+.md-code-block .token.inserted {
+  color: #87d96c !important;
+}
+
+.md-code-block .token.deleted {
+  color: #f27983 !important;
+}
+
+.md-code-block .token.important {
+  color: #f29e74 !important;
+  font-weight: 700 !important;
+}
+
+/* Invalid: red */
+.md-code-block .token.invalid {
+  color: #ff6666 !important;
+}
+
+/* --- Long tail: less common Prism scopes --- */
+
+/* Entities, namespaces and generic types: blue */
+.md-code-block .token.entity,
+.md-code-block .token.namespace {
+  color: #73d0ff !important;
+}
+
+/* Symbols, characters, null: lilac constants */
+.md-code-block .token.symbol,
+.md-code-block .token.char,
+.md-code-block .token.null {
+  color: #dfbfff !important;
+}
+
+/* Function/section titles: yellow */
+.md-code-block .token.title,
+.md-code-block .token.title.function {
+  color: #ffd173 !important;
+}
+
+/* Template expressions: orange (per Ayu punctuation.definition) */
+.md-code-block .token.template-string,
+.md-code-block .token.interpolation,
+.md-code-block .token.interpolation-punctuation {
+  color: #ffad66 !important;
+}
+
+/* Links: cyan */
+.md-code-block .token.url,
+.md-code-block .token.url-reference {
+  color: #5ccfe6 !important;
+}
+
+/* Special attributes: yellow */
+.md-code-block .token.special-attr {
+  color: #ffd173 !important;
+}
+
+/* Inline code inside tokens: teal */
+.md-code-block .token.code {
+  color: #95e6cb !important;
+}

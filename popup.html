@@ -1,0 +1,1004 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>DeepSeek Plus (DSP)</title>
+    <style>
+      /*
+       * Flat theme: a single warm-gray surface, no shadows or gradients,
+       * rows separated by spacing alone, white bordered fields, a
+       * saturated selection blue and status green.
+       */
+      :root {
+        color-scheme: light;
+        --bg: #efeaea;
+        --hover: #e4dedf;
+        --sel: #1e6fe8;
+        --sel-strong: #0f5fcb;
+        --text: #1c1b1c;
+        --muted: #9a938f;
+        --field: #ffffff;
+        --field-bd: #d8d2d0;
+        --hair: rgba(214, 208, 206, 0.6);
+        --banner: #e5dfe1;
+        --btn-gray: #dcd5d6;
+        --btn-gray-hover: #d0c8c9;
+        --green: #34c759;
+        --green-text: #24a944;
+        --red: #ff3b30;
+        --focus: rgba(30, 111, 232, 0.22);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      /* The canvas must stay transparent so the popup window corners
+         are truly rounded: backgrounds on html/body propagate to the
+         canvas and would paint the full rectangle. All visuals live on
+         an inner frame element instead. */
+      html,
+      body {
+        margin: 0;
+        background: transparent;
+      }
+
+      body {
+        width: 360px;
+      }
+
+      .frame {
+        border: 1px solid rgba(0, 0, 0, 0.16);
+        background: var(--bg);
+        padding-bottom: 4px;
+        font:
+          400 13px/1.5 -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          system-ui,
+          sans-serif;
+        color: var(--text);
+      }
+
+      /* ---------- Header ---------- */
+
+      header {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 15px 16px 11px;
+      }
+
+      .logo {
+        display: grid;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        flex-shrink: 0;
+        border-radius: 9px;
+        overflow: hidden;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .sub {
+        margin: 1px 0 0;
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .badge {
+        margin-left: auto;
+        padding: 3px 9px;
+        border-radius: 999px;
+        background: var(--btn-gray);
+        color: #55555a;
+        font-size: 10px;
+        font-weight: 600;
+      }
+
+      /* ---------- Tabs: flat gray fill when active ---------- */
+
+      .tabs {
+        display: flex;
+        gap: 4px;
+        margin: 2px 12px 12px;
+        padding: 0;
+      }
+
+      .tab {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 7px 0;
+        border: none;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--muted);
+        font: inherit;
+        font-weight: 500;
+        cursor: pointer;
+        transition:
+          background 0.12s ease,
+          color 0.12s ease;
+      }
+
+      .tab.active {
+        background: var(--btn-gray);
+        color: var(--text);
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+      }
+
+      .tab:not(.active):hover {
+        color: var(--text);
+      }
+
+      main {
+        padding: 0 12px;
+      }
+
+      #tab-appearance {
+        padding-bottom: 16px;
+      }
+
+      /* ---------- Settings row (flat, hover fill) ---------- */
+
+      .setting {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 9px 10px;
+        margin: 0 4px 12px;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        cursor: pointer;
+        transition: background 0.12s ease;
+      }
+
+      .setting:hover {
+        background: var(--hover);
+      }
+
+      .setting-title {
+        font-weight: 600;
+      }
+
+      .setting-desc {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      /* ---------- Switch: green pill with a white check ---------- */
+
+      .switch {
+        position: relative;
+        width: 34px;
+        height: 20px;
+        flex-shrink: 0;
+        margin-left: auto;
+      }
+
+      .switch input {
+        position: absolute;
+        inset: 0;
+        margin: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .switch i {
+        position: absolute;
+        inset: 0;
+        border-radius: 9px;
+        background: #c9c3c1;
+        pointer-events: none;
+        transition: background 0.15s ease;
+      }
+
+      .switch i::before {
+        content: "\2713";
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+      }
+
+      .switch input:checked + i {
+        background: var(--green);
+      }
+
+      .switch input:checked + i::before {
+        opacity: 1;
+      }
+
+      .switch input:focus-visible + i {
+        outline: 2px solid var(--sel);
+        outline-offset: 2px;
+      }
+
+      /* ---------- Group headers, hairline separators, banners ---------- */
+
+      .label {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin: 0 10px 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      .label:not(:first-child) {
+        margin-top: 4px;
+      }
+
+      .sep {
+        height: 1px;
+        background: var(--hair);
+        margin: 13px 10px;
+      }
+
+      .count {
+        padding: 1px 8px;
+        border-radius: 999px;
+        background: var(--sel);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 600;
+      }
+
+      /* ---------- Prompt list: flat rows, spacing only ---------- */
+
+      #list {
+        display: grid;
+        gap: 2px;
+        max-height: 236px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        padding: 0 2px;
+        margin: 0 2px;
+      }
+
+      .prompt {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        padding: 8px 10px;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        transition: background 0.12s ease;
+      }
+
+      .prompt:hover {
+        background: var(--hover);
+      }
+
+      .prompt input[type="checkbox"] {
+        width: 15px;
+        height: 15px;
+        margin: 2px 0 0;
+        flex-shrink: 0;
+        accent-color: var(--green);
+        cursor: pointer;
+      }
+
+      .prompt textarea {
+        flex: 1;
+        min-height: 20px;
+        max-height: 140px;
+        padding: 0;
+        border: none;
+        background: transparent;
+        color: var(--text);
+        font: inherit;
+        resize: none;
+        overflow-y: auto;
+        field-sizing: content;
+      }
+
+      .prompt textarea:focus {
+        outline: none;
+      }
+
+      .prompt.off textarea {
+        color: var(--muted);
+      }
+
+      .icon-btn {
+        display: grid;
+        place-items: center;
+        width: 26px;
+        height: 26px;
+        margin: -3px -5px 0 0;
+        flex-shrink: 0;
+        border: none;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        transition:
+          color 0.12s ease,
+          background 0.12s ease;
+      }
+
+      .icon-btn:hover {
+        background: var(--hover);
+        color: var(--red);
+      }
+
+      .empty {
+        padding: 24px 12px;
+        border-radius: 8px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .empty svg {
+        display: block;
+        margin: 0 auto 6px;
+        opacity: 0.55;
+      }
+
+      /* ---------- Fields: white with a light border ---------- */
+
+      #newPrompt,
+      .font-field input[type="text"],
+      .prow input[type="number"],
+      .add-row input[type="text"] {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid var(--field-bd);
+        border-radius: 6px;
+        background: var(--field);
+        color: var(--text);
+        font: inherit;
+        transition:
+          border-color 0.12s ease,
+          box-shadow 0.12s ease;
+      }
+
+      #newPrompt {
+        min-height: 44px;
+        max-height: 140px;
+        resize: none;
+        field-sizing: content;
+      }
+
+      #newPrompt::placeholder,
+      .font-field input[type="text"]::placeholder,
+      .add-row input[type="text"]::placeholder {
+        color: var(--muted);
+      }
+
+      #newPrompt:focus,
+      .font-field input[type="text"]:focus,
+      .prow input[type="number"]:focus,
+      .add-row input[type="text"]:focus {
+        outline: none;
+        border-color: var(--sel);
+        box-shadow: 0 0 0 3px var(--focus);
+      }
+
+      .add {
+        display: grid;
+        gap: 8px;
+        margin: 12px 4px 0;
+      }
+
+      /* ---------- Appearance: white panel with hairline rows ---------- */
+
+      .panel {
+        background: var(--field);
+        border: 1px solid var(--field-bd);
+        border-radius: 8px;
+        padding: 3px 12px;
+      }
+
+      .prow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 0;
+      }
+
+      .prow input[type="number"] {
+        width: 64px;
+      }
+
+      .pname {
+        width: 74px;
+        flex-shrink: 0;
+        color: var(--text);
+      }
+
+      .sep-in {
+        height: 1px;
+        background: var(--hair);
+        margin: 0 -12px;
+      }
+
+      /* ---------- Font field with autocomplete ---------- */
+
+      .font-field {
+        position: relative;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .font-field input[type="text"] {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .font-menu {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        z-index: 10;
+        max-height: 224px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        padding: 4px;
+        border: 1px solid var(--field-bd);
+        border-radius: 8px;
+        background: var(--field);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+      }
+
+      .font-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        width: 100%;
+        padding: 6px 8px;
+        border: none;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--text);
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .font-item .cat {
+        flex-shrink: 0;
+        font-size: 10px;
+        color: var(--muted);
+      }
+
+      .font-item:hover {
+        background: var(--hover);
+      }
+
+      .font-item.active {
+        background: var(--sel);
+        color: #fff;
+      }
+
+      .font-item.active .cat {
+        color: #fff;
+      }
+
+      .status {
+        min-height: 17px;
+        margin: 8px 0 6px;
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .status.ok {
+        color: var(--green-text);
+      }
+
+      .status.warn {
+        color: var(--red);
+      }
+
+      .pick-wrap {
+        position: relative;
+        display: inline-grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 1px solid var(--field-bd);
+        background: var(--field);
+      }
+
+      input[type="color"] {
+        width: 18px;
+        height: 18px;
+        padding: 0;
+        border: none;
+        border-radius: 50%;
+        background: none;
+        cursor: pointer;
+      }
+
+      input[type="color"]::-webkit-color-swatch-wrapper {
+        padding: 0;
+      }
+
+      input[type="color"]::-webkit-color-swatch {
+        border: none;
+        border-radius: 50%;
+      }
+
+      .pick-wrap.unset input[type="color"] {
+        opacity: 0.35;
+      }
+
+      .pick-clear {
+        display: none;
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        place-items: center;
+        width: 14px;
+        height: 14px;
+        border: none;
+        border-radius: 50%;
+        background: var(--red);
+        color: #fff;
+        font-size: 10px;
+        line-height: 1;
+        cursor: pointer;
+      }
+
+      .pick-wrap:not(.unset) .pick-clear {
+        display: grid;
+      }
+
+      /* ---------- Buttons: flat blue / flat gray ---------- */
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 6px;
+        font: inherit;
+        font-weight: 500;
+        cursor: pointer;
+        transition:
+          background 0.12s ease,
+          color 0.12s ease;
+      }
+
+      .btn:focus-visible {
+        outline: 2px solid var(--sel);
+        outline-offset: 2px;
+      }
+
+      .btn.primary {
+        background: var(--sel);
+        color: #fff;
+      }
+
+      .btn.primary:hover {
+        background: var(--sel-strong);
+      }
+
+      .btn.primary:active {
+        background: var(--sel-strong);
+      }
+
+      .btn.ghost {
+        background: var(--btn-gray);
+        color: var(--text);
+      }
+
+      .btn.ghost:hover {
+        background: var(--btn-gray-hover);
+      }
+
+      .btn.small {
+        padding: 7px 13px;
+        font-size: 12px;
+      }
+
+      .btn.block {
+        width: 100%;
+      }
+
+      .btn.ok {
+        background: var(--btn-gray);
+        color: var(--green-text);
+      }
+
+      .btn.warn {
+        background: #fbe4e3;
+        color: var(--red);
+      }
+
+      .send-btn {
+        margin: 12px 4px 18px;
+        display: flex;
+        width: calc(100% - 8px);
+      }
+
+      /* ---------- Projects tab ---------- */
+
+      .add-row {
+        display: flex;
+        gap: 8px;
+        margin: 12px 4px 0;
+      }
+
+      .add-row input[type="text"] {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .frow {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        border-radius: 8px;
+        background: transparent;
+        transition: background 0.12s ease;
+      }
+
+      .frow:hover {
+        background: var(--hover);
+      }
+
+      .frow + .frow {
+        margin-top: 2px;
+      }
+
+      .frow input[type="text"] {
+        flex: 1;
+        min-width: 0;
+        padding: 3px 6px;
+        border: 1px solid transparent;
+        border-radius: 5px;
+        background: transparent;
+        color: var(--text);
+        font: inherit;
+      }
+
+      .frow input[type="text"]:hover {
+        border-color: var(--field-bd);
+      }
+
+      .frow input[type="text"]:focus {
+        outline: none;
+        border-color: var(--sel);
+        box-shadow: 0 0 0 3px var(--focus);
+      }
+
+      .frow .cnt {
+        flex-shrink: 0;
+        font-size: 11px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <header>
+        <div class="logo">
+          <svg
+            width="36"
+            height="36"
+            viewBox="0 0 36 36"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect width="36" height="36" rx="9" fill="#4d6bfe" />
+            <g transform="translate(2.6,2.6) scale(1.1)">
+              <path
+                fill="#ffffff"
+                d="M 23.748 4.651 c -.254 -.124 -.364 .113 -.512 .233 -.051 .04
+                  -.094 .09 -.137 .137 -.372 .397 -.806 .657 -1.373 .626 -.829
+                  -.046 -1.537 .214 -2.163 .848 -.133 -.782 -.575 -1.248 -1.247
+                  -1.548 -.352 -.155 -.708 -.311 -.955 -.65 -.172 -.24 -.219
+                  -.509 -.305 -.774 -.055 -.16 -.11 -.323 -.293 -.35 -.2 -.031
+                  -.278 .136 -.356 .276 -.313 .572 -.434 1.202 -.422 1.84 .027
+                  1.436 .633 2.58 1.838 3.393 .137 .094 .172 .187 .129 .323
+                  -.082 .28 -.18 .553 -.266 .833 -.055 .179 -.137 .218 -.328
+                  .14 a 5.5 5.5 0 0 1 -1.737 -1.179 c -.857 -.828 -1.631 -1.743
+                  -2.597 -2.46 a 12 12 0 0 0 -.689 -.47 c -.985 -.957 .13
+                  -1.743 .387 -1.836 .27 -.098 .094 -.433 -.778 -.428 -.872
+                  .003 -1.67 .295 -2.687 .685 a 3 3 0 0 1 -.465 .136 9.6 9.6 0
+                  0 0 -2.883 -.101 c -1.885 .21 -3.39 1.1 -4.497 2.622 C .082
+                  8.776 -.231 10.854 .152 13.02 c .403 2.284 1.568 4.175 3.36
+                  5.653 1.857 1.533 3.997 2.284 6.438 2.14 1.482 -.085 3.132
+                  -.284 4.994 -1.86 .47 .234 .962 .328 1.78 .398 .629 .058
+                  1.235 -.031 1.705 -.129 .735 -.155 .684 -.836 .418 -.961
+                  -2.155 -1.004 -1.682 -.595 -2.112 -.926 1.095 -1.295 2.768
+                  -3.598 3.284 -6.733 .05 -.346 .115 -.834 .108 -1.114 -.004
+                  -.171 .035 -.238 .23 -.257 a 4.2 4.2 0 0 0 1.545 -.475 c
+                  1.397 -.763 1.96 -2.016 2.093 -3.517 .02 -.23 -.004 -.467
+                  -.247 -.588 M 11.58 18.168 c -2.088 -1.642 -3.101 -2.183
+                  -3.52 -2.16 -.39 .024 -.32 .472 -.234 .763 .09 .288 .207 .487
+                  .371 .74 .114 .167 .192 .416 -.113 .603 -.673 .416 -1.842
+                  -.14 -1.897 -.168 -1.361 -.801 -2.5 -1.86 -3.301 -3.306 -.775
+                  -1.393 -1.225 -2.888 -1.299 -4.482 -.02 -.385 .094 -.522 .477
+                  -.592 a 4.7 4.7 0 0 1 1.53 -.038 c 2.131 .311 3.946 1.264
+                  5.467 2.774 .868 .86 1.525 1.887 2.202 2.89 .72 1.066 1.494
+                  2.082 2.48 2.915 .348 .291 .626 .513 .892 .677 -.802 .09
+                  -2.14 .109 -3.055 -.615 z m 1.001 -6.44 a .306 .306 0 0 1
+                  .415 -.287 .3 .3 0 0 1 .113 .074 .3 .3 0 0 1 .086 .214 c 0
+                  .17 -.136 .307 -.308 .307 a .303 .303 0 0 1 -.306 -.307 m
+                  3.11 1.596 c -.2 .081 -.4 .151 -.591 .16 a 1.25 1.25 0 0 1
+                  -.798 -.254 c -.274 -.23 -.47 -.358 -.551 -.758 a 1.7 1.7 0 0
+                  1 .015 -.588 c .07 -.327 -.007 -.537 -.238 -.727 -.188 -.156
+                  -.426 -.199 -.689 -.199 a .6 .6 0 0 1 -.254 -.078 .253 .253 0
+                  0 1 -.114 -.358 1 1 0 0 1 .192 -.21 c .356 -.202 .767 -.136
+                  1.146 .016 .352 .144 .618 .408 1.001 .782 .392 .451 .462 .576
+                  .685 .915 .176 .264 .336 .536 .446 .848 .066 .194 -.02 .353
+                  -.25 .45"
+              />
+            </g>
+            <circle cx="28" cy="28" r="7.8" fill="#ffffff" />
+            <rect
+              x="26.9"
+              y="24"
+              width="2.2"
+              height="8"
+              rx="1"
+              fill="#4d6bfe"
+            />
+            <rect
+              x="24"
+              y="26.9"
+              width="8"
+              height="2.2"
+              rx="1"
+              fill="#4d6bfe"
+            />
+          </svg>
+        </div>
+        <div>
+          <h1>DeepSeek Plus (DSP)</h1>
+          <p class="sub">bidi, prompts, fonts &amp; projects</p>
+        </div>
+        <span class="badge" id="version"></span>
+      </header>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="prompts">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M 12 3 H 5 a 2 2 0 0 0 -2 2 v 14 a 2 2 0 0 0 2 2 h 14 a 2 2 0
+                0 0 2 -2 v -7"
+            />
+            <path d="M 18.5 2.5 a 2.1 2.1 0 0 1 3 3 L 12 15 l -4 1 1 -4 Z" />
+          </svg>
+          Prompts
+        </button>
+        <button class="tab" data-tab="appearance">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="13.5" cy="6.5" r="0.5" fill="currentColor" />
+            <circle cx="17.5" cy="10.5" r="0.5" fill="currentColor" />
+            <circle cx="8.5" cy="7.5" r="0.5" fill="currentColor" />
+            <circle cx="6.5" cy="12.5" r="0.5" fill="currentColor" />
+            <path
+              d="M 12 2 a 10 10 0 0 0 0 20 2 2 0 0 0 0 -4 2 2 0 0 1 0 -4 4 4 0
+                0 1 4 4 4 4 0 0 0 4 -4 10 10 0 0 0 -8 -12 Z"
+            />
+          </svg>
+          Appearance
+        </button>
+        <button class="tab" data-tab="projects">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M 4 20 h 16 a 2 2 0 0 0 2 -2 V 8 a 2 2 0 0 0 -2 -2 h -7.9 a 2
+                2 0 0 1 -1.69 -.9 L 9.6 3.9 A 2 2 0 0 0 7.93 3 H 4 a 2 2 0 0 0
+                -2 2 v 13 c 0 1.1 .9 2 2 2 Z"
+            />
+          </svg>
+          Projects
+        </button>
+      </div>
+
+      <main>
+        <section id="tab-prompts">
+          <label class="setting">
+            <div>
+              <div class="setting-title">Auto-send on new chat</div>
+              <div class="setting-desc">
+                Prompts are sent once, only in brand-new chats
+              </div>
+            </div>
+            <span class="switch">
+              <input type="checkbox" id="autoSend" checked />
+              <i></i>
+            </span>
+          </label>
+
+          <div class="sep"></div>
+
+          <div class="label">
+            Prompts <span class="count" id="count">0</span>
+          </div>
+
+          <div id="list"></div>
+
+          <div class="sep"></div>
+
+          <div class="add">
+            <textarea
+              id="newPrompt"
+              rows="2"
+              placeholder="Write a new system prompt..."
+            ></textarea>
+            <button class="btn primary block" id="addBtn">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              >
+                <path d="M 12 5 v 14 M 5 12 h 14" />
+              </svg>
+              Add prompt
+            </button>
+          </div>
+
+          <div class="sep"></div>
+
+          <button class="btn ghost block send-btn" id="sendNowBtn">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m 22 2 -7 20 -4 -9 -9 -4 Z" />
+              <path d="M 22 2 11 13" />
+            </svg>
+            <span>Send now to current chat</span>
+          </button>
+        </section>
+
+        <section id="tab-appearance" hidden>
+          <div class="label">Page font</div>
+
+          <div class="panel">
+            <div class="prow">
+              <span class="pname">Font</span>
+              <div class="font-field">
+                <input
+                  type="text"
+                  id="chatFont"
+                  placeholder="Search Google Fonts..."
+                  spellcheck="false"
+                  autocomplete="off"
+                />
+                <button class="btn primary small" id="chatFontApply">
+                  Set
+                </button>
+                <div class="font-menu" id="chatFontMenu" hidden></div>
+              </div>
+            </div>
+
+            <div class="sep-in"></div>
+
+            <div class="prow">
+              <span class="pname">Size</span>
+              <input
+                type="number"
+                id="chatSize"
+                min="9"
+                max="48"
+                step="1"
+                placeholder="16"
+              />
+            </div>
+
+            <div class="sep-in"></div>
+
+            <div class="prow">
+              <span class="pname">Text color</span>
+              <span class="pick-wrap unset">
+                <input type="color" id="chatColor" value="#98a1b0" />
+                <button
+                  class="pick-clear"
+                  data-for="chatColor"
+                  title="Use site default"
+                >
+                  &times;
+                </button>
+              </span>
+            </div>
+          </div>
+
+          <div class="status" id="chatFontStatus"></div>
+        </section>
+
+        <section id="tab-projects" hidden>
+          <label class="setting">
+            <div>
+              <div class="setting-title">Enable projects</div>
+              <div class="setting-desc">Folder drawer on chat.deepseek.com</div>
+            </div>
+            <span class="switch">
+              <input type="checkbox" id="projectsEnabled" />
+              <i></i>
+            </span>
+          </label>
+
+          <div class="sep"></div>
+
+          <div class="label">
+            Folders <span class="count" id="folderCount">0</span>
+          </div>
+
+          <div id="folderList"></div>
+
+          <div class="sep"></div>
+
+          <div class="add-row">
+            <input
+              type="text"
+              id="newFolder"
+              placeholder="New folder name..."
+              spellcheck="false"
+            />
+            <button class="btn primary small" id="addFolderBtn">Add</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="fonts.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
