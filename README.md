@@ -10,7 +10,7 @@ over the page font, a wider chat column, project folders and
 auto-collapsed thinking sections.
 
 ![Manifest V3](https://img.shields.io/badge/manifest--v3-4D6BFE)
-![Version](https://img.shields.io/badge/version-1.24.0-1E6FE8)
+![Version](https://img.shields.io/badge/version-1.24.1-1E6FE8)
 ![Permissions](https://img.shields.io/badge/permissions-storage--only-34C759)
 
 </div>
@@ -190,21 +190,21 @@ staging folder is kept after the run for packing through Chrome's GUI.
 
 ## File structure
 
-| File            | Purpose                                               |
-| --------------- | ----------------------------------------------------- |
-| `manifest.json` | Extension metadata, permissions, content scripts      |
+| File            | Purpose                                                             |
+| --------------- | ------------------------------------------------------------------- |
+| `manifest.json` | Extension metadata, permissions, content scripts                    |
 | `content.js`    | Prompt auto-send, page typography, wider column, collapsed thinking |
-| `projects.js`   | Projects drawer: folders, drag & drop, live sync      |
-| `fonts.js`      | Shared Google Fonts downloader/cacher                 |
-| `fonts.json`    | Google Fonts catalog snapshot for autocomplete        |
-| `styles.css`    | Bidi direction rules for DeepSeek pages               |
-| `theme-ayu.css` | Ayu Mirage color theme for code snippets              |
-| `popup.html`    | Toolbar popup UI (flat theme)                         |
-| `popup.js`      | Popup logic: prompts, theme, font search              |
-| `icons/`        | Extension icons (16/32/48/128 px)                     |
-| `assets/`       | Logo SVG used by this README                          |
-| `pack.sh`       | Build script: `.zip` and signed `.crx` in `dist/`     |
-| `.editorconfig` | Repo lint rules: line length, whitespace, indentation |
+| `projects.js`   | Projects drawer: folders, drag & drop, live sync                    |
+| `fonts.js`      | Shared Google Fonts downloader/cacher                               |
+| `fonts.json`    | Google Fonts catalog snapshot for autocomplete                      |
+| `styles.css`    | Bidi direction rules for DeepSeek pages                             |
+| `theme-ayu.css` | Ayu Mirage color theme for code snippets                            |
+| `popup.html`    | Toolbar popup UI (flat theme)                                       |
+| `popup.js`      | Popup logic: prompts, theme, font search                            |
+| `icons/`        | Extension icons (16/32/48/128 px)                                   |
+| `assets/`       | Logo SVG used by this README                                        |
+| `pack.sh`       | Build script: `.zip` and signed `.crx` in `dist/`                   |
+| `.editorconfig` | Repo lint rules: line length, whitespace, indentation               |
 
 ## Storage keys
 
@@ -218,6 +218,19 @@ staging folder is kept after the run for packing through Chrome's GUI.
 | `fontCss:<family>` | Embedded Google Fonts CSS, cached per family           |
 
 ## Changelog
+
+### 1.24.1
+
+- Hardened the site-coupled selectors against DeepSeek redesigns. The
+  "conversation is visible" check now also matches the markdown body
+  and user bubble classes next to `.ds-message`, so a class rename can
+  no longer make an open chat look brand-new to the auto-send.
+- The Ayu code theme gained a fallback route: if the site renames its
+  `.md-code-block` wrappers, the block surface and code text are still
+  themed through the markdown container's `pre` elements.
+
+<details>
+<summary>Earlier releases</summary>
 
 ### 1.24.0
 
@@ -238,9 +251,6 @@ staging folder is kept after the run for packing through Chrome's GUI.
   snippet in chats is recolored with the Ayu Mirage palette, mapped
   onto DeepSeek's Prism token classes. Applies to both the site's dark
   and light code-block variants.
-
-<details>
-<summary>Earlier releases</summary>
 
 ### 1.22.4
 

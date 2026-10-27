@@ -24,7 +24,10 @@
 
   const SENT_FLAG = "__dsPromptSent";
   const COMPOSER_SEL = 'textarea, [contenteditable="true"]';
-  const MESSAGE_SEL = ".ds-message";
+  // Any of these marks a rendered conversation: the message wrapper plus
+  // the markdown body and user bubble classes, so a class rename cannot
+  // make an open chat look brand-new.
+  const MESSAGE_SEL = ".ds-message, .ds-markdown, .ds-user-message";
   const SEND_BTN_SEL =
     'button[type="submit"], button[aria-label*="send" i],' +
     ' button[data-testid*="send" i]';
@@ -339,8 +342,7 @@
   const THINK_BLOCK_SEL = "._74c0879";
   const THINK_TOGGLE_SEL = "._5ab5d64";
   const THINK_CONTENT_SEL = ".ds-think-content";
-  const THINK_CANDIDATES =
-    `${THINK_BLOCK_SEL}, ${THINK_CONTENT_SEL}, [aria-controls]`;
+  const THINK_CANDIDATES = `${THINK_BLOCK_SEL}, ${THINK_CONTENT_SEL}, [aria-controls]`;
 
   // Blocks and toggles that must never be clicked again: collapsed
   // here, found collapsed already, or re-expanded by the user after the

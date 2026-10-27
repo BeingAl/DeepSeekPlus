@@ -200,3 +200,14 @@
 .md-code-block .token.code {
   color: #95e6cb !important;
 }
+
+/* --- Fallback route ---
+   The .md-code-block wrappers above may be renamed between site
+   builds. Theme the block surface and code text through the markdown
+   container as well, so code blocks stay legible in that case; the
+   token rules keep applying as long as the Prism scopes survive. */
+.ds-markdown pre,
+.ds-markdown pre code {
+  background-color: #242835 !important;
+  color: #cccac2 !important;
+}
