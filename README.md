@@ -10,7 +10,7 @@ over the page font, a wider chat column, project folders and
 auto-collapsed thinking sections.
 
 ![Manifest V3](https://img.shields.io/badge/manifest--v3-4D6BFE)
-![Version](https://img.shields.io/badge/version-1.24.1-1E6FE8)
+![Version](https://img.shields.io/badge/version-1.24.2-1E6FE8)
 ![Permissions](https://img.shields.io/badge/permissions-storage--only-34C759)
 
 </div>
@@ -219,6 +219,20 @@ staging folder is kept after the run for packing through Chrome's GUI.
 
 ## Changelog
 
+### 1.24.2
+
+- Fixed the drawer's right-side space reservation moving every popup
+  on the page: the whole floating layer and a generic right-edge sweep
+  dragged toasts, menus and message popups along with the Projects
+  drawer. Only the chat-section navigation strip is shifted now, found
+  by scanning each floating layer's widget branches for the one pinned
+  to the middle band of the viewport's right edge, however the site
+  nests it. The Share button, popups and toasts stay exactly where
+  DeepSeek puts them.
+
+<details>
+<summary>Earlier releases</summary>
+
 ### 1.24.1
 
 - Hardened the site-coupled selectors against DeepSeek redesigns. The
@@ -228,9 +242,6 @@ staging folder is kept after the run for packing through Chrome's GUI.
 - The Ayu code theme gained a fallback route: if the site renames its
   `.md-code-block` wrappers, the block surface and code text are still
   themed through the markdown container's `pre` elements.
-
-<details>
-<summary>Earlier releases</summary>
 
 ### 1.24.0
 

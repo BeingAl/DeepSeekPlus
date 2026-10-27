@@ -156,7 +156,8 @@
     document.head.appendChild(el);
   }
 
-  // Reserves the drawer's space WITHOUT moving the whole page.
+  // Slides the chat-section navigation left of the drawer WITHOUT
+  // moving the whole page or any other widget.
   function syncLayoutStyle() {
     const width = state.collapsed ? SLIVER_W : DRAWER_W;
     let el = document.getElementById(LAYOUT_ID);
@@ -167,93 +168,80 @@
     }
     el.textContent = `
       :root { --dst-shift: ${width}px; }
-      .ds-floating-container {
-        translate: calc(-1 * var(--dst-shift, 0px)) 0 !important;
-        transition: translate .2s ease;
-      }
       .dst-rshift {
         translate: calc(-1 * var(--dst-shift, 0px)) 0 !important;
         transition: translate .2s ease;
-      }
-      .dst-rcancel {
-        translate: calc(var(--dst-shift, 0px)) 0 !important;
       }
     `;
   }
 
   const SHIFT_CLASS = "dst-rshift";
-  const CANCEL_CLASS = "dst-rcancel";
-  const FLOATING_WRAP = ".ds-floating-position-wrapper";
   const FLOATING_LAYER = ".ds-floating-container";
-  const shiftedEls = new Set(); // individually shifted fixed widgets
-  const canceledEls = new Set(); // non-right floating widgets compensated
+  const shiftedEls = new Set(); // the branch holding the section nav
+  const NAV_SCAN_CAP = 400; // nodes inspected per branch, keeps scans cheap
+
+  // The chat-section navigation rides the drawer; nothing else does.
+  // Inside DeepSeek's floating layer each widget owns one branch, so a
+  // branch counts when ANY of its elements hugs the middle band of the
+  // viewport's right edge: the Share button lives in the top band,
+  // toasts and message popups elsewhere. Zero-size boxes pass through
+  // to their children, because the site positions its wrappers with
+  // transforms and a wrapper box can collapse to a point while its
+  // sliver stays visible. A branch shifted on an earlier scan counts
+  // too, so its moved position cannot drop it from the set on the next
+  // scan.
+  function hugsRightEdgeMidBand(el, vw, vh) {
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 && r.height === 0) return false;
+    if (r.right < vw - 60 || r.right > vw + 400) return false;
+    if (r.top <= 90 || r.bottom >= vh - 60) return false;
+    return r.height >= 60;
+  }
+
+  function branchHoldsNav(branch, vw, vh) {
+    if (branch.classList.contains(SHIFT_CLASS)) return true;
+    if (hugsRightEdgeMidBand(branch, vw, vh)) return true;
+    let seen = 0;
+    for (const el of branch.querySelectorAll("*")) {
+      if (++seen > NAV_SCAN_CAP) break;
+      if (hugsRightEdgeMidBand(el, vw, vh)) return true;
+    }
+    return false;
+  }
+
+  // Widgets sit as direct children of the layer; when the site nests
+  // them one level deeper, the walk follows a single-child chain down
+  // to the level where the widgets actually split apart. A chain that
+  // stays single is kept as one branch: it can only hold one widget.
+  function navBranches(layer, vw, vh) {
+    let branches = [...layer.children];
+    for (let depth = 0; depth < 3 && branches.length === 1; depth++) {
+      const next = [...branches[0].children];
+      if (next.length <= 1) break;
+      branches = next;
+    }
+    return branches.filter((b) => branchHoldsNav(b, vw, vh));
+  }
 
   function syncRightPinned() {
-    const foundShift = new Set();
-    const foundCancel = new Set();
-
+    const want = new Set();
     if (state.enabled) {
       const vw = window.innerWidth;
-      const shift = state.collapsed ? SLIVER_W : DRAWER_W;
-      const effectiveRight = vw - shift; // the new "viewport edge"
-
-      // 1) Floating widgets: right-anchored ones ride the layer shift;
-      //    anything else (center/left) is compensated back.
-      for (const wrap of document.querySelectorAll(FLOATING_WRAP)) {
-        const rect = wrap.getBoundingClientRect();
-        if (rect.width === 0 && rect.height === 0) continue;
-        if (rect.right >= effectiveRight - 250) continue; // right edge
-        foundCancel.add(wrap);
-      }
-
-      // 2) Generic sweep for fixed point widgets outside the floating
-      //    layer (the layer's own children are handled above).
-      if (typeof document.elementsFromPoint === "function") {
-        const vh = window.innerHeight;
-        const xs = [8, 40, 80, 120, 170].map((d) => vw - d);
-        const ys = [];
-        for (let y = 60; y < vh - 40; y += 70) ys.push(y);
-
-        for (const x of xs) {
-          for (const y of ys) {
-            for (const el of document.elementsFromPoint(x, y)) {
-              if (!(el instanceof Element) || foundShift.has(el)) continue;
-              if (el.closest?.(`#${PANEL_ID}`)) continue;
-              if (el.closest?.(FLOATING_LAYER)) continue; // layer handles it
-              const cs = getComputedStyle(el);
-              if (cs.position !== "fixed") continue;
-              const rect = el.getBoundingClientRect();
-              if (rect.width > vw * 0.5) continue; // full-width bars stay
-              if (rect.right < effectiveRight - 250) continue;
-              foundShift.add(el);
-            }
-          }
-        }
+      const vh = window.innerHeight;
+      for (const layer of document.querySelectorAll(FLOATING_LAYER)) {
+        for (const branch of navBranches(layer, vw, vh)) want.add(branch);
       }
     }
-
     for (const el of shiftedEls) {
-      if (!foundShift.has(el)) {
+      if (!want.has(el)) {
         el.classList.remove(SHIFT_CLASS);
         shiftedEls.delete(el);
       }
     }
-    for (const el of foundShift) {
+    for (const el of want) {
       if (!shiftedEls.has(el)) {
         el.classList.add(SHIFT_CLASS);
         shiftedEls.add(el);
-      }
-    }
-    for (const el of canceledEls) {
-      if (!foundCancel.has(el)) {
-        el.classList.remove(CANCEL_CLASS);
-        canceledEls.delete(el);
-      }
-    }
-    for (const el of foundCancel) {
-      if (!canceledEls.has(el)) {
-        el.classList.add(CANCEL_CLASS);
-        canceledEls.add(el);
       }
     }
   }
@@ -376,9 +364,7 @@
     document.getElementById(PANEL_ID)?.remove();
     document.getElementById(LAYOUT_ID)?.remove();
     for (const el of shiftedEls) el.classList?.remove(SHIFT_CLASS);
-    for (const el of canceledEls) el.classList?.remove(CANCEL_CLASS);
     shiftedEls.clear();
-    canceledEls.clear();
   }
 
   // ---------- mutations ----------
