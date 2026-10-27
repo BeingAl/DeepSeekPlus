@@ -11,6 +11,10 @@
  *
  * - Applies the page typography (fonts.js downloads and caches Google
  *   Fonts in local storage) and widens the conversation column.
+ *
+ * - Thinking sections: every "Thought for ..." reasoning block is
+ *   collapsed automatically as soon as it appears. A block the user
+ *   expands manually is never collapsed again.
  */
 (() => {
   if (window.__dsToolsLoaded) return;
@@ -317,4 +321,132 @@
   }
 
   applyWideLayout();
+
+  // ========== 4) Auto-collapsed thinking sections ==========
+  //
+  // DeepSeek renders every "Thought for ..." reasoning block expanded,
+  // which pushes the answer off screen. Each block is collapsed by one
+  // click, exactly once, as soon as it exists; that covers answers that
+  // are still streaming, older chats opened from history and reloads. A
+  // block the user expands manually is never touched a second time.
+  //
+  // The site's class names are build hashes that change between
+  // releases, so detection has two routes: the current hash classes for
+  // block and toggle, and the site's own ARIA wiring (a toggle with
+  // aria-expanded/aria-controls pointing at .ds-think-content), which
+  // survives class renames.
+
+  const THINK_BLOCK_SEL = "._74c0879";
+  const THINK_TOGGLE_SEL = "._5ab5d64";
+  const THINK_CONTENT_SEL = ".ds-think-content";
+  const THINK_CANDIDATES =
+    `${THINK_BLOCK_SEL}, ${THINK_CONTENT_SEL}, [aria-controls]`;
+
+  // Blocks and toggles that must never be clicked again: collapsed
+  // here, found collapsed already, or re-expanded by the user after the
+  // one automatic click.
+  const thinkDone = new WeakSet();
+
+  const thinkVisible = (el) => el.getClientRects().length > 0;
+
+  function collapseThinkingBlock(block, toggle, content) {
+    if (thinkDone.has(block) || thinkDone.has(toggle)) return;
+    if (!thinkVisible(toggle) || !content || !thinkVisible(content)) return;
+    if (toggle.matches("[disabled], [aria-disabled='true']")) {
+      return; // clickable only later; the scan reruns on the next change
+    }
+    if (toggle.getAttribute("aria-expanded") === "false") {
+      // Restored chats can render blocks already collapsed.
+      thinkDone.add(block);
+      thinkDone.add(toggle);
+      return;
+    }
+    // Mark before clicking: a synchronous re-render inside the click
+    // must not trigger a second click on the same block.
+    thinkDone.add(block);
+    thinkDone.add(toggle);
+    toggle.click();
+  }
+
+  function scanThinking() {
+    for (const block of document.querySelectorAll(THINK_BLOCK_SEL)) {
+      const toggle = [...block.querySelectorAll(THINK_TOGGLE_SEL)].find(
+        (el) => !el.closest(THINK_CONTENT_SEL),
+      );
+      if (!toggle) continue;
+      const content = [...block.children].find((el) =>
+        el.matches(THINK_CONTENT_SEL),
+      );
+      collapseThinkingBlock(block, toggle, content);
+    }
+
+    // Fallback for renamed hash classes: any ARIA toggle that controls
+    // a .ds-think-content region inside its own block.
+    for (const toggle of document.querySelectorAll(
+      "[aria-controls][aria-expanded]",
+    )) {
+      if (toggle.getAttribute("aria-expanded") === "false") continue;
+      const content = document.getElementById(
+        toggle.getAttribute("aria-controls"),
+      );
+      if (!content?.matches(THINK_CONTENT_SEL) || content.contains(toggle)) {
+        continue;
+      }
+      const block = content.parentElement;
+      if (!block || block === document.body || !block.contains(toggle)) {
+        continue;
+      }
+      collapseThinkingBlock(block, toggle, content);
+    }
+  }
+
+  // Scans are batched on a short timer so streaming text does not
+  // trigger a rescan for every chunk.
+  let thinkTimer = null;
+
+  function scheduleThinkScan() {
+    if (thinkTimer !== null) return;
+    thinkTimer = setTimeout(() => {
+      thinkTimer = null;
+      scanThinking();
+    }, 200);
+  }
+
+  new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      if (m.type === "attributes") {
+        if (
+          m.target.matches(THINK_CANDIDATES) ||
+          m.target.querySelector(THINK_CANDIDATES)
+        ) {
+          scheduleThinkScan();
+          return;
+        }
+      } else if (
+        [...m.addedNodes].some(
+          (n) =>
+            n.nodeType === Node.ELEMENT_NODE &&
+            (n.matches(THINK_CANDIDATES) || n.querySelector(THINK_CANDIDATES)),
+        )
+      ) {
+        scheduleThinkScan();
+        return;
+      }
+    }
+  }).observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: [
+      "class",
+      "hidden",
+      "aria-hidden",
+      "aria-expanded",
+      "aria-controls",
+      "disabled",
+      "aria-disabled",
+    ],
+  });
+
+  scanThinking();
 })();

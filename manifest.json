@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "DeepSeek Plus (DSP)",
-  "version": "1.23.0",
+  "version": "1.24.0",
   "description": "Supercharges chat.deepseek.com: RTL/LTR direction, auto system prompts, page fonts, a wider chat column and project folders",
   "permissions": ["storage"],
   "icons": {

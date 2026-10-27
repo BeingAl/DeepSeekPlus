@@ -6,10 +6,11 @@
 
 A Chrome extension (Manifest V3) that upgrades **chat.deepseek.com** with
 automatic RTL/LTR text direction, reusable system prompts, full control
-over the page font, a wider chat column and project folders.
+over the page font, a wider chat column, project folders and
+auto-collapsed thinking sections.
 
 ![Manifest V3](https://img.shields.io/badge/manifest--v3-4D6BFE)
-![Version](https://img.shields.io/badge/version-1.23.0-1E6FE8)
+![Version](https://img.shields.io/badge/version-1.24.0-1E6FE8)
 ![Permissions](https://img.shields.io/badge/permissions-storage--only-34C759)
 
 </div>
@@ -108,6 +109,22 @@ colors — green strings, yellow functions, blue classes, cyan tags,
 orange keywords, faded-blue italic comments. Applied to both of
 DeepSeek's dark and light code-block variants via `theme-ayu.css`.
 
+### 7. Collapsed thinking sections
+
+DeepSeek keeps every "Thought for ..." reasoning block expanded, so long
+thinking pushes the actual answer off screen. The extension collapses
+each block automatically:
+
+- Blocks are collapsed as soon as they appear: while an answer is still
+  streaming, when an older chat is opened and after a reload. The
+  response stays in view by default.
+- A block is collapsed at most once: if you expand it again, it stays
+  open.
+- Detection uses DeepSeek's own expand/collapse ARIA state
+  (`aria-expanded` / `aria-controls`) as a fallback alongside the
+  current class names, so it keeps working when the site renames its
+  hashed CSS classes.
+
 ## Permissions & privacy
 
 - **Site access**: the content script is injected only into
@@ -176,7 +193,7 @@ staging folder is kept after the run for packing through Chrome's GUI.
 | File            | Purpose                                               |
 | --------------- | ----------------------------------------------------- |
 | `manifest.json` | Extension metadata, permissions, content scripts      |
-| `content.js`    | Prompt auto-send, page typography, wider column       |
+| `content.js`    | Prompt auto-send, page typography, wider column, collapsed thinking |
 | `projects.js`   | Projects drawer: folders, drag & drop, live sync      |
 | `fonts.js`      | Shared Google Fonts downloader/cacher                 |
 | `fonts.json`    | Google Fonts catalog snapshot for autocomplete        |
@@ -201,6 +218,19 @@ staging folder is kept after the run for packing through Chrome's GUI.
 | `fontCss:<family>` | Embedded Google Fonts CSS, cached per family           |
 
 ## Changelog
+
+### 1.24.0
+
+- Thinking sections now start collapsed: every "Thought for ..." block
+  is collapsed the moment it appears, whether the answer is still
+  streaming, the chat was opened from history or the page was reloaded.
+  Long reasoning no longer pushes the answer off screen.
+- A block is collapsed at most once: anything you expand yourself stays
+  open.
+- Detection uses the site's own ARIA state (`aria-expanded` /
+  `aria-controls` pointing at the reasoning content) as a fallback
+  alongside the current class names, so it keeps working when DeepSeek
+  renames its hashed classes.
 
 ### 1.23.0
 
