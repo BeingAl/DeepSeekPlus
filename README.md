@@ -16,7 +16,7 @@ auto-collapsed thinking sections.
 </div>
 
 > [!NOTE]
-> Unofficial companion extension — not affiliated with DeepSeek.
+> Unofficial companion extension, not affiliated with DeepSeek.
 
 ## Screenshots
 
@@ -34,7 +34,7 @@ auto-collapsed thinking sections.
   character, so Persian, English and mixed conversations all render
   correctly.
 - Code blocks and inline code are always kept LTR.
-- Implemented purely in CSS with `unicode-bidi: plaintext` — no DOM
+- Implemented purely in CSS with `unicode-bidi: plaintext`: no DOM
   scanning, no observers, zero runtime cost.
 
 ### 2. System prompts
@@ -42,7 +42,7 @@ auto-collapsed thinking sections.
 - Store any number of prompts, each with an on/off toggle.
 - **Auto mode** (default): all active prompts are combined into a single
   message and sent **exactly once per brand-new chat**. A chat counts as
-  new while it has no rendered messages — any chat with content
+  new while it has no rendered messages; any chat with content
   (opened from history, in a new tab, after a reload) is never touched.
 - **Manual mode**: turn "Auto-send on new chat" off and use the
   **"Send now to current chat"** button to insert the prompts yourself,
@@ -55,12 +55,12 @@ One general setting applied to the entire page:
 | Setting    | Effect                                       |
 | ---------- | -------------------------------------------- |
 | Font       | Any family from Google Fonts; default Roboto |
-| Size       | Font size in px (9–48); default 16           |
+| Size       | Font size in px (9-48); default 16           |
 | Text color | Font color; unset = site default             |
 
 How fonts work:
 
-1. Start typing a family name in the font field — matches from the
+1. Start typing a family name in the font field: matches from the
    bundled Google Fonts catalog appear in realtime; pick one (or type a
    name manually and press Enter / Set).
 2. The stylesheet is fetched from the Google Fonts CSS2 API, every
@@ -75,7 +75,7 @@ Changes apply live on all open DeepSeek tabs.
 
 ### 4. Projects (chat folders)
 
-DeepSeek has no folder organization, so the extension adds one —
+DeepSeek has no folder organization, so the extension adds one
 without touching the native left sidebar:
 
 - Enable it in the popup's **Projects** tab (applies instantly).
@@ -90,7 +90,7 @@ without touching the native left sidebar:
   a folder frees its chats).
 
 Storage: the folder tree, chat assignments and cached chat titles live in
-`chrome.storage.local` — the extension's own browser storage. It was
+`chrome.storage.local`, the extension's own browser storage. It was
 chosen over IndexedDB because the data is a few kilobytes, and
 `storage.onChanged` syncs every open DeepSeek tab and the popup
 instantly. No cookies and no page-owned storage (localStorage) are used.
@@ -105,8 +105,8 @@ keeps working if the site changes its default.
 
 All code snippets in chats are re-themed with the Ayu Mirage palette
 (MIT licensed): a `#242835` block surface with the signature token
-colors — green strings, yellow functions, blue classes, cyan tags,
-orange keywords, faded-blue italic comments. Applied to both of
+colors (green strings, yellow functions, blue classes, cyan tags,
+orange keywords, faded-blue italic comments). Applied to both of
 DeepSeek's dark and light code-block variants via `theme-ayu.css`.
 
 ### 7. Collapsed thinking sections
@@ -128,7 +128,7 @@ each block automatically:
 ## Permissions & privacy
 
 - **Site access**: the content script is injected only into
-  `https://*.deepseek.com/*` — the domain and all of its subdomains, over
+  `https://*.deepseek.com/*`, the domain and all of its subdomains over
   HTTPS only. This is enforced by Chrome's match-pattern mechanism; the
   extension has **no access and no host permissions for any other site**.
 - **Storage**: the only requested permission is `storage`, used to keep
@@ -161,7 +161,7 @@ Creates in `dist/`:
 
 The zip is the file to hand out: unzip it, open `chrome://extensions`,
 enable Developer mode, click **Load unpacked** and select the extracted
-folder — it is also the exact format accepted by the Chrome Web Store.
+folder; it is also the exact format accepted by the Chrome Web Store.
 The `.crx` is produced only when a Chrome/Chromium binary is found. The
 staging folder is kept after the run for packing through Chrome's GUI.
 
@@ -181,12 +181,12 @@ staging folder is kept after the run for packing through Chrome's GUI.
 1. Run `./pack.sh` once to create the clean staging folder (packing the
    project root directly would include repo-only files such as this
    README, `.gitignore` and `.editorconfig`).
-2. Open `chrome://extensions` → **Pack extension**.
+2. Open `chrome://extensions` and click **Pack extension**.
 3. Extension root directory: `dist/deepseek-plus-v<version>`.
 4. Private key field: empty on the very first build (Chrome creates a
-   `.pem` — store it as `extension-key.pem`); select that key file on
+   `.pem`; store it as `extension-key.pem`); select that key file on
    every later build.
-5. Click **Pack** — the `.crx` and key are written next to the folder.
+5. Click **Pack** and the `.crx` and key are written next to the folder.
 
 ## File structure
 
@@ -311,14 +311,14 @@ staging folder is kept after the run for packing through Chrome's GUI.
 ### 1.20.1
 
 - Popup framed with a faint dark outline (1px rgba black) and rounded
-  12px corners — Chrome renders extension popup windows with transparent
+  12px corners: Chrome renders extension popup windows with transparent
   corners, so the rounding applies to the window itself.
 
 ### 1.20.0
 
 - New branding: the extension and popup icons are now the DeepSeek whale
   mark in white on the DeepSeek blue (#4D6BFE) squircle with a white
-  "plus" badge — a DeepSeek Plus identity for the extension.
+  "plus" badge, giving the extension a DeepSeek Plus identity.
 - Confirmed the bundled Google Fonts catalog snapshot is current
   (1950 families).
 
@@ -352,7 +352,7 @@ staging folder is kept after the run for packing through Chrome's GUI.
   `.ds-floating-container` layer instead of individual widgets. The
   layer clips its overflowing children (`overflow:hidden`), so the
   peek/tuck hover behavior of the chat-section navigation works
-  relative to the drawer's edge — the tucked sliver always stays
+  relative to the drawer's edge, so the tucked sliver always stays
   hoverable next to the drawer instead of disappearing under it.
   Floating widgets NOT anchored at the right edge (centered toasts)
   are detected and compensated back to their original spot.
@@ -425,19 +425,20 @@ staging folder is kept after the run for packing through Chrome's GUI.
 ### 1.13.0
 
 - Popup restyled to a neumorphism (soft UI) design: a single light-gray
-  surface shaped purely by paired light/dark shadows — raised cards,
-  pill rows and buttons, pressed-in inputs, tracks and icon wells,
-  large radii and a monochrome palette, with Poppins embedded locally
-  as the UI font. All functionality and element structure unchanged.
+  surface shaped purely by paired light/dark shadows, with raised
+  cards, pill rows and buttons, pressed-in inputs, tracks and icon
+  wells, large radii and a monochrome palette. Poppins is embedded
+  locally as the UI font. All functionality and element structure
+  unchanged.
 
 ### 1.12.0
 
 - The Projects drawer now reserves space on the page: the app's root
   containers get a right margin matching the drawer state (full width
   or the collapsed sliver) with the same transition, so right-side
-  content slides along with the drawer instead of being overlapped —
+  content slides along with the drawer instead of being overlapped,
   in both the open and collapsed states.
-- Drawer width increased by ~25% (232px → 290px).
+- Drawer width increased by ~25% (232px to 290px).
 - Drawer typography unified with the global page font: all fixed font
   sizes/families in the drawer CSS were removed, so folder names, chat
   rows and labels follow the Page font setting exactly like the rest
@@ -485,7 +486,7 @@ staging folder is kept after the run for packing through Chrome's GUI.
   DeepSeek's own date labels (Today / Yesterday / ... exactly as the site
   renders them) as collapsible folder-like cards. Sections are divided by
   clear separator lines; date groups collapse with a click and their
-  state persists. No app DOM nodes are moved — only styling and classes
+  state persists. No app DOM nodes are moved; only styling and classes
   are applied, so React keeps working underneath.
 - The popup now preserves the full `projects` storage object when
   writing, so page-managed keys (collapsed date groups, cached titles)
@@ -525,7 +526,7 @@ staging folder is kept after the run for packing through Chrome's GUI.
 
 ### 1.5.0
 
-- Removed the background-color pickers from both appearance cards — they
+- Removed the background-color pickers from both appearance cards; they
   conflicted with the site's own colors (e.g. code syntax highlighting).
   Stored background settings are purged automatically.
 - Auto-send reliability fixes: stale per-tab state no longer blocks
@@ -559,7 +560,7 @@ staging folder is kept after the run for packing through Chrome's GUI.
 - Popup reorganized into tabs: **Prompts** and **Appearance**; the
   "Send now to current chat" button stays in the always-visible footer.
 - All active prompts are combined into a single message (joined with a
-  blank line) — auto-send and manual send both send one message.
+  blank line), and auto-send and manual send both send one message.
 
 ### 1.2.0
 
